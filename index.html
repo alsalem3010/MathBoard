@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- إضافة هذا لجعل الصفحة مستجيبة -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سبورة الرياضيات التفاعلية</title>
     <style>
         body {
@@ -106,11 +106,6 @@
             color: #fff;
             box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
         }
-        .tool-btn img {
-            width: 24px;
-            height: 24px;
-            margin-left: 8px;
-        }
         .panel {
             position: absolute;
             top: 10%;
@@ -125,6 +120,10 @@
             z-index: 10;
             max-width: 300px;
             width: 30%;
+            cursor: move;
+        }
+        .panel.dragging {
+            opacity: 0.8;
         }
         #timer {
             position: absolute;
@@ -145,7 +144,7 @@
         @keyframes blink {
             50% { opacity: 0; }
         }
-        select, input[type="number"], input[type="text"], textarea {
+        select, input[type="text"], textarea {
             width: 100%;
             padding: 8px;
             margin: 6px 0;
@@ -172,6 +171,24 @@
         button:hover {
             background: #2980b9;
             transform: translateY(-2px);
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .input-group button {
+            padding: 5px 10px;
+            font-size: 12px;
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .input-group button:hover {
+            background: #2980b9;
         }
         @media (max-width: 768px) {
             #mainContainer {
@@ -202,10 +219,6 @@
             .tool-btn {
                 font-size: 12px;
             }
-            .tool-btn img {
-                width: 20px;
-                height: 20px;
-            }
             header h1 {
                 font-size: 24px;
             }
@@ -228,31 +241,29 @@
     </header>
     <div id="mainContainer">
         <div id="leftToolbar">
-            <button class="tool-btn" id="penBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAdklEQVRIS+2SwQ2AIAwD+xG2/xG2EFrnBgpzI+wCygA/AH4UjD2YhkmANuB8WvKWMmdXj+MO3IBsQM5gZmBmgEpgBuAtcAewA7gD2IEdwA7gDmAHSovYAVwB2YF8AbkBOYA7gDuAO4A7gDuAO4A7wPoD7gDuwP8A3wMUO8ELn5UAAAAASUVORK5CYII=">قلم</button>
-            <button class="tool-btn" id="eraserBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAkUlEQVRIS+2TsQ3AIAyE+xG2/xG2EFpnCsYZK+wC9gD+AJgJODswDZMAbcD5tOQtpc6uHsdtwA5kA3IGMwMzAy0CNwBvgTuAHcAe4A5gB3AHsAM7gB3AFZAduAPkAO4A7gDuAO4A7gDuAO4A6w+4A7gDuwO8A6w/4A7gDuwO8A6w/4DbgDuwO8A7wPoD7gDuwO8A/gMYO8F+4U8AAAAASUVORK5CYII=">ممحاة</button>
-            <button class="tool-btn" id="compassBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAkElEQVRIS+2TwQ3AIAiE+xG2/xG2EFpnCsYZK+wC9gD+AJgJODswDZMAbcD5tOQtpc6uHsdtwA5kA3IGMwMzAy0CNwBvgTuAHcAe4A5gB3AHsAM7gB3AFZAduAPkAO4A7gDuAO4A7gDuAO4A6w+4A7gDuwO8A6w/4A7gDuwO8A6w/4DbgDuwO8A7wPoD7gDuwP8A/gMYO8F+4U8AAAAASUVORK5CYII=">فرجار</button>
-            <button class="tool-btn" id="polygonBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAjUlEQVRIS+2TwQ2AIAiE+xG2/xG2EFpnCsYZK+wC9gD+AJgJODswDZMAbcD5tOQtpc6uHsdtwA5kA3IGMwMzAy0CNwBvgTuAHcAe4A5gB3AHsAM7gB3AFZAduAPkAO4A7gDuAO4A7gDuAO4A6w+4A7gDuwO8A6w/4A7gDuwO8A6w/4DbgDuwO8A7wPoD7gDuwP8A/gMYO8F+4U8AAAAASUVORK5CYII=">مضلع</button>
-            <button class="tool-btn" id="pointBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAkklEQVRIS+2TwQ2AIAiE+xG2/xG2EFpnCsYZK+wC9gD+AJgJODswDZMAbcD5tOQtpc6uHsdtwA5kA3IGMwMzAy0CNwBvgTuAHcAe4A5gB3AHsAM7gB3AFZAduAPkAO4A7gDuAO4A7gDuAO4A6w+4A7gDuwO8A6w/4A7gDuwO8A6w/4DbgDuwO8A7wPoD7gDuwO8A/gMYO8F+4U8AAAAASUVORK5CYII=">نقطة</button>
+            <button class="tool-btn" id="penBtn">قلم</button>
+            <button class="tool-btn" id="eraserBtn">ممحاة</button>
+            <button class="tool-btn" id="compassBtn">فرجار</button>
+            <button class="tool-btn" id="polygonBtn">مضلع</button>
+            <button class="tool-btn" id="pointBtn">نقطة</button>
         </div>
-
         <div id="canvasContainer">
             <span id="timer">00:00</span>
             <canvas id="canvas"></canvas>
         </div>
-
         <div id="rightToolbar">
-            <button class="tool-btn" id="gridBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAk0lEQVRIS+2TwQ2AIAiE+xG2/xG2EFpnCsYZK+wC9gD+AJgJODswDZMAbcD5tOQtpc6uHsdtwA5kA3IGMwMzAy0CNwBvgTuAHcAe4A5gB3AHsAM7gB3AFZAduAPkAO4A7gDuAO4A7gDuAO4A6w+4A7gDuwO8A6w/4A7gDuwO8A6w/4DbgDuwO8A7wPoD7gDuwO8A/gMYO8F+4U8AAAAASUVORK5CYII=">شبكة</button>
-            <button class="tool-btn" id="numberLineBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAkklEQVRIS+2TwQ2AIAiE+xG2/xG2EFpnCsYZK+wC9gD+AJgJODswDZMAbcD5tOQtpc6uHsdtwA5kA3IGMwMzAy0CNwBvgTuAHcAe4A5gB3AHsAM7gB3AFZAduAPkAO4A7gDuAO4A7gDuAO4A6w+4A7gDuwO8A6w/4A7gDuwO8A6w/4DbgDuwO8A7wPoD7gDuwO8A/gMYO8F+4U8AAAAASUVORK5CYII=">خط أعداد</button>
-            <button class="tool-btn" id="functionBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAj0lEQVRIS+2TwQ2AIAiE+xG2/xG2EFpnCsYZK+wC9gD+AJgJODswDZMAbcD5tOQtpc6uHsdtwA5kA3IGMwMzAy0CNwBvgTuAHcAe4A5gB3AHsAM7gB3AFZAduAPkAO4A7gDuAO4A7gDuAO4A6w+4A7gDuwO8A6w/4A7gDuwO8A6w/4DbgDuwO8A7wPoD7gDuwP8A/gMYO8F+4U8AAAAASUVORK5CYII=">محلل الدوال</button>
-            <button class="tool-btn" id="transformBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAkElEQVRIS+2TwQ3AIAiE+xG2/xG2EFpnCsYZK+wC9gD+AJgJODswDZMAbcD5tOQtpc6uHsdtwA5kA3IGMwMzAy0CNwBvgTuAHcAe4A5gB3AHsAM7gB3AFZAduAPkAO4A7gDuAO4A7gDuAO4A6w+4A7gDuwO8A6w/4A7gDuwO8A6w/4DbgDuwO8A7wPoD7gDuwP8A/gMYO8F+4U8AAAAASUVORK5CYII=">تحويل</button>
-            <button class="tool-btn" id="multiplicationBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAjklEQVRIS+2TwQ2AIAiE+xG2/xG2EFpnCsYZK+wC9gD+AJgJODswDZMAbcD5tOQtpc6uHsdtwA5kA3IGMwMzAy0CNwBvgTuAHcAe4A5gB3AHsAM7gB3AFZAduAPkAO4A7gDuAO4A7gDuAO4A6w+4A7gDuwO8A6w/4A7gDuwO8A6w/4DbgDuwO8A7wPoD7gDuwP8A/gMYO8F+4U8AAAAASUVORK5CYII=">جدول الضرب</button>
-            <button class="tool-btn" id="rulerBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAkUlEQVRIS+2TsQ3AIAyE+xG2/xG2EFpnCsYZK+wC9gD+AJgJODswDZMAbcD5tOQtpc6uHsdtwA5kA3IGMwMzAy0CNwBvgTuAHcAe4A5gB3AHsAM7gB3AFZAduAPkAO4A7gDuAO4A7gDuAO4A6w+4A7gDuwO8A6w/4A7gDuwO8A6w/4DbgDuwO8A7wPoD7gDuwO8A/gMYO8F+4U8AAAAASUVORK5CYII=">مسطرة</button>
-            <button class="tool-btn" id="timerBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAjUlEQVRIS+2TwQ2AIAiE+xG2/xG2EFpnCsYZK+wC9gD+AJgJODswDZMAbcD5tOQtpc6uHsdtwA5kA3IGMwMzAy0CNwBvgTuAHcAe4A5gB3AHsAM7gB3AFZAduAPkAO4A7gDuAO4A7gDuAO4A6w+4A7gDuwO8A6w/4A7gDuwO8A6w/4DbgDuwO8A7wPoD7gDuwP8A/gMYO8F+4U8AAAAASUVORK5CYII=">مؤقت</button>
-            <button class="tool-btn" id="screenshotBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAkklEQVRIS+2TwQ2AIAiE+xG2/xG2EFpnCsYZK+wC9gD+AJgJODswDZMAbcD5tOQtpc6uHsdtwA5kA3IGMwMzAy0CNwBvgTuAHcAe4A5gB3AHsAM7gB3AFZAduAPkAO4A7gDuAO4A7gDuAO4A6w+4A7gDuwO8A6w/4A7gDuwO8A6w/4DbgDuwO8A7wPoD7gDuwO8A/gMYO8F+4U8AAAAASUVORK5CYII=">تصوير الشاشة</button>
-            <button class="tool-btn" id="spinnerBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAj0lEQVRIS+2TwQ2AIAiE+xG2/xG2EFpnCsYZK+wC9gD+AJgJODswDZMAbcD5tOQtpc6uHsdtwA5kA3IGMwMzAy0CNwBvgTuAHcAe4A5gB3AHsAM7gB3AFZAduAPkAO4A7gDuAO4A7gDuAO4A6w+4A7gDuwO8A6w/4A7gDuwO8A6w/4DbgDuwO8A7wPoD7gDuwP8A/gMYO8F+4U8AAAAASUVORK5CYII=">دوارة الطلاب</button>
-            <button class="tool-btn" id="undoBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAkElEQVRIS+2TwQ3AIAiE+xG2/xG2EFpnCsYZK+wC9gD+AJgJODswDZMAbcD5tOQtpc6uHsdtwA5kA3IGMwMzAy0CNwBvgTuAHcAe4A5gB3AHsAM7gB3AFZAduAPkAO4A7gDuAO4A7gDuAO4A6w+4A7gDuwO8A6w/4A7gDuwO8A6w/4DbgDuwO8A7wPoD7gDuwP8A/gMYO8F+4U8AAAAASUVORK5CYII=">تراجع</button>
-            <button class="tool-btn" id="redoBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAkklEQVRIS+2TwQ2AIAiE+xG2/xG2EFpnCsYZK+wC9gD+AJgJODswDZMAbcD5tOQtpc6uHsdtwA5kA3IGMwMzAy0CNwBvgTuAHcAe4A5gB3AHsAM7gB3AFZAduAPkAO4A7gDuAO4A7gDuAO4A6w+4A7gDuwO8A6w/4A7gDuwO8A6w/4DbgDuwO8A7wPoD7gDuwO8A/gMYO8F+4U8AAAAASUVORK5CYII=">عودة</button>
-            <button class="tool-btn" id="clearBtn"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAjUlEQVRIS+2TwQ2AIAiE+xG2/xG2EFpnCsYZK+wC9gD+AJgJODswDZMAbcD5tOQtpc6uHsdtwA5kA3IGMwMzAy0CNwBvgTuAHcAe4A5gB3AHsAM7gB3AFZAduAPkAO4A7gDuAO4A7gDuAO4A6w+4A7gDuwO8A6w/4A7gDuwO8A6w/4DbgDuwO8A7wPoD7gDuwP8A/gMYO8F+4U8AAAAASUVORK5CYII=">مسح الكل</button>
+            <button class="tool-btn" id="gridBtn">شبكة</button>
+            <button class="tool-btn" id="numberLineBtn">خط أعداد</button>
+            <button class="tool-btn" id="functionBtn">محلل الدوال</button>
+            <button class="tool-btn" id="transformBtn">تحويل</button>
+            <button class="tool-btn" id="multiplicationBtn">جدول الضرب</button>
+            <button class="tool-btn" id="rulerBtn">مسطرة</button>
+            <button class="tool-btn" id="timerBtn">مؤقت</button>
+            <button class="tool-btn" id="screenshotBtn">تصوير الشاشة</button>
+            <button class="tool-btn" id="spinnerBtn">دوارة الطلاب</button>
+            <button class="tool-btn" id="undoBtn">تراجع</button>
+            <button class="tool-btn" id="redoBtn">عودة</button>
+            <button class="tool-btn" id="clearBtn">مسح الكل</button>
             <select id="colorPicker">
                 <option value="black">أسود</option>
                 <option value="red">أحمر</option>
@@ -264,23 +275,24 @@
             <input type="number" id="eraserSize" min="1" max="20" value="5">
             <label>حجم الممحاة</label>
         </div>
-
         <div id="gridInput" class="panel">
-            <label>القيمة العليا (x):</label><input type="number" id="xMax"><br>
-            <label>القيمة الدنيا (x):</label><input type="number" id="xMin"><br>
-            <label>القيمة العليا (y):</label><input type="number" id="yMax"><br>
-            <label>القيمة الدنيا (y):</label><input type="number" id="yMin"><br>
-            <label>القفزة:</label><input type="number" id="step" min="0.1" step="0.1"><br>
+            <label>القفزة (بالوحدات):</label>
+            <div class="input-group">
+                <input type="number" id="step" min="1" step="1" value="1">
+                <button onclick="increment('step', 1)">+</button>
+                <button onclick="increment('step', -1)">-</button>
+            </div><br>
             <button onclick="drawGrid()">ارسم الشبكة</button>
         </div>
-
         <div id="numberLineInput" class="panel">
-            <label>القيمة العليا:</label><input type="number" id="nlMax"><br>
-            <label>القيمة الدنيا:</label><input type="number" id="nlMin"><br>
-            <label>القفزة:</label><input type="number" id="nlStep" min="0.1" step="0.1"><br>
+            <label>القفزة:</label>
+            <div class="input-group">
+                <input type="number" id="nlStep" min="1" step="1" value="1">
+                <button onclick="increment('nlStep', 1)">+</button>
+                <button onclick="increment('nlStep', -1)">-</button>
+            </div><br>
             <button onclick="drawNumberLine()">ارسم خط الأعداد</button>
         </div>
-
         <div id="functionInput" class="panel">
             <label>الدالة:</label><input type="text" id="funcInput"><br>
             <select id="funcPresets" onchange="document.getElementById('funcInput').value = this.value;">
@@ -295,31 +307,48 @@
             <label>تعليق:</label><input type="text" id="funcLabel"><br>
             <button onclick="drawFunction()">ارسم الدالة</button>
         </div>
-
         <div id="transformMenu" class="panel">
-            <label>إزاحة X (مربعات):</label><input type="number" id="shiftX" step="0.1"><br>
-            <label>إزاحة Y (مربعات):</label><input type="number" id="shiftY" step="0.1"><br>
-            <label>التكبير:</label><input type="number" id="scale" step="0.1" min="0.1" value="1"><br>
-            <label>الدوران (درجة):</label><input type="number" id="rotate"><br>
+            <label>إزاحة X (مربعات):</label><div class="input-group"><input type="text" id="shiftX" pattern="[+-]?\d*\.?\d+" step="0.1"><button onclick="increment('shiftX', 0.1)">+</button><button onclick="increment('shiftX', -0.1)">-</button></div><br>
+            <label>إزاحة Y (مربعات):</label><div class="input-group"><input type="text" id="shiftY" pattern="[+-]?\d*\.?\d+" step="0.1"><button onclick="increment('shiftY', 0.1)">+</button><button onclick="increment('shiftY', -0.1)">-</button></div><br>
+            <label>التكبير:</label><div class="input-group"><input type="text" id="scale" pattern="[+-]?\d*\.?\d+" step="0.1" min="0.1" value="1"><button onclick="increment('scale', 0.1)">+</button><button onclick="increment('scale', -0.1)">-</button></div><br>
+            <label>الدوران (درجة):</label><div class="input-group"><input type="text" id="rotate" pattern="[+-]?\d*"><button onclick="increment('rotate', 1)">+</button><button onclick="increment('rotate', -1)">-</button></div><br>
             <button onclick="applyTransform()">تطبيق</button>
+            <button onclick="closeTransformMenu()" style="background: #e74c3c; margin-top: 10px;">إغلاق</button>
         </div>
-
         <div id="multiplicationTable" class="panel" style="width: 300px;">
             <h3>جدول الضرب العشوائي</h3>
             <div id="tableContent"></div>
         </div>
-
         <div id="spinnerInput" class="panel">
             <label>أدخل الأسماء (كل اسم في سطر):</label><br>
             <textarea id="studentNames" rows="5" cols="30"></textarea><br>
             <button onclick="spinWheel()">ابدأ الدوران</button>
-            <canvas id="spinnerCanvas" width="200" height="200"></canvas>
+            <canvas id="spinnerCanvas" width="400" height="400"></canvas>
         </div>
     </div>
-
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
+
+        // إنشاء صوت افتراضي باستخدام AudioContext
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let isWhistlePlaying = false;
+
+        function playBeep(duration = 200, frequency = 440) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.type = 'sine';
+            oscillator.frequency.value = frequency;
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration / 1000);
+        }
+
+        function playLongBeep(duration = 1000) {
+            playBeep(duration, 880);
+        }
 
         function resizeCanvas() {
             const containerWidth = canvas.parentElement.clientWidth;
@@ -327,6 +356,7 @@
             canvas.height = canvas.width * 0.7;
             ctx.lineCap = 'round';
             ctx.strokeStyle = 'black';
+            ctx.fillStyle = 'black';
             ctx.lineWidth = 2;
             redrawAll();
         }
@@ -348,7 +378,11 @@
             grid: null,
             numberLine: null,
             functions: [],
-            ruler: null
+            ruler: null,
+            polygonHistory: [],
+            redoPolygonHistory: [],
+            remainingNames: [],
+            lastSelectedName: null
         };
 
         const buttons = document.querySelectorAll('.tool-btn');
@@ -410,17 +444,17 @@
             canvas.removeEventListener('pointermove', erase);
             canvas.removeEventListener('pointerup', endPosition);
             canvas.removeEventListener('mousedown', compassStart);
-            canvas.removeEventListener('mousemove', previewCircle);
+            canvas.removeEventListener('mousemove', previewRadius);
             canvas.removeEventListener('mouseup', finishCircle);
             canvas.removeEventListener('touchstart', compassStart);
-            canvas.removeEventListener('touchmove', previewCircle);
+            canvas.removeEventListener('touchmove', previewRadius);
             canvas.removeEventListener('touchend', finishCircle);
             canvas.removeEventListener('pointerdown', compassStart);
-            canvas.removeEventListener('pointermove', previewCircle);
+            canvas.removeEventListener('pointermove', previewRadius);
             canvas.removeEventListener('pointerup', finishCircle);
             canvas.removeEventListener('pointerdown', addPolygonVertex);
             canvas.removeEventListener('pointermove', previewPolygon);
-            canvas.removeEventListener('dblclick', finishPolygon);
+            canvas.removeEventListener('pointerup', checkAutoClose);
             canvas.removeEventListener('click', addPoint);
             canvas.removeEventListener('click', showPointCoords);
             canvas.removeEventListener('mousedown', rulerStart);
@@ -440,6 +474,9 @@
             state.history.push(canvas.toDataURL());
             if (state.history.length > 20) state.history.shift();
             state.redoHistory = [];
+            state.polygonHistory.push([...state.polygons]);
+            if (state.polygonHistory.length > 20) state.polygonHistory.shift();
+            state.redoPolygonHistory = [];
         }
 
         function undo() {
@@ -451,6 +488,13 @@
                 img.onload = () => {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.drawImage(img, 0, 0);
+                    if (state.polygonHistory.length > 0) {
+                        state.redoPolygonHistory.push([...state.polygons]);
+                        state.polygons = [...state.polygonHistory.pop()];
+                    } else {
+                        state.polygons = [];
+                    }
+                    redrawAll();
                 };
             }
         }
@@ -464,6 +508,11 @@
                 img.onload = () => {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.drawImage(img, 0, 0);
+                    if (state.redoPolygonHistory.length > 0) {
+                        state.polygonHistory.push([...state.polygons]);
+                        state.polygons = [...state.redoPolygonHistory.pop()];
+                    }
+                    redrawAll();
                 };
             }
         }
@@ -477,6 +526,8 @@
             state.grid = null;
             state.numberLine = null;
             state.ruler = null;
+            state.polygonHistory = [];
+            state.redoPolygonHistory = [];
             saveState();
         }
 
@@ -491,7 +542,141 @@
             if (state.ruler && state.ruler.active) drawRuler();
         }
 
-        // القلم
+        function drawPolygon(poly) {
+            ctx.beginPath();
+            ctx.moveTo(poly.points[0].x, poly.points[0].y);
+            poly.points.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
+            ctx.closePath();
+            ctx.lineWidth = ctx.lineWidth * 2;
+            ctx.strokeStyle = poly.color || document.getElementById('colorPicker').value || 'black';
+            ctx.stroke();
+            ctx.lineWidth = parseInt(document.getElementById('lineWidth').value);
+
+            poly.points.forEach(point => {
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
+                ctx.fillStyle = poly.color || document.getElementById('colorPicker').value || 'black';
+                ctx.fill();
+                ctx.strokeStyle = poly.color || document.getElementById('colorPicker').value || 'black';
+                ctx.stroke();
+            });
+        }
+
+        function hexToRgb(hex) {
+            let r = 0, g = 0, b = 0;
+            if (hex.length === 7) {
+                r = parseInt(hex.substring(1, 3), 16);
+                g = parseInt(hex.substring(3, 5), 16);
+                b = parseInt(hex.substring(5, 7), 16);
+            } else if (hex.length === 4) {
+                r = parseInt(hex[1] + hex[1], 16);
+                g = parseInt(hex[2] + hex[2], 16);
+                b = parseInt(hex[3] + hex[3], 16);
+            }
+            return { r, g, b };
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return [h * 360, s * 100, l * 100];
+        }
+
+        function hslToRgb(h, s, l) {
+            h /= 360;
+            s /= 100;
+            l /= 100;
+            let r, g, b;
+
+            if (s === 0) {
+                r = g = b = l;
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1 / 6) return p + (q - p) * 6 * t;
+                    if (t < 1 / 2) return q;
+                    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                    return p;
+                };
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1 / 3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1 / 3);
+            }
+            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+
+        function darkenColor(color, amount) {
+            let usePound = false;
+            if (color[0] === "#") {
+                color = color.slice(1);
+                usePound = true;
+            }
+            const { r, g, b } = hexToRgb("#" + color);
+            let [h, s, l] = rgbToHsl(r, g, b);
+            l = Math.max(0, l - amount);
+            const [newR, newG, newB] = hslToRgb(h, s, l);
+            const result = ((newR << 16) | (newG << 8) | newB).toString(16).padStart(6, '0');
+            return (usePound ? "#" : "") + result;
+        }
+
+        function drawCircle(circle) {
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+            const originalColor = circle.color;
+            const darkerColor = darkenColor(originalColor, 30);
+            ctx.strokeStyle = darkerColor;
+            ctx.stroke();
+        }
+
+        function drawPoint(point) {
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+            ctx.fillStyle = point.color;
+            ctx.fill();
+        }
+
+        function drawFunctionGraph(func) {
+            ctx.beginPath();
+            ctx.moveTo(func.points[0].x, func.points[0].y);
+            func.points.forEach(p => ctx.lineTo(p.x, p.y));
+            ctx.strokeStyle = func.color;
+            ctx.stroke();
+            ctx.fillStyle = func.color;
+            ctx.fillText(func.label, func.labelX, func.labelY);
+        }
+
+        function drawRuler() {
+            ctx.beginPath();
+            ctx.moveTo(state.ruler.startX, state.ruler.startY);
+            ctx.lineTo(state.ruler.endX, state.ruler.endY);
+            ctx.strokeStyle = 'purple';
+            ctx.stroke();
+
+            let distanceInPixels = Math.sqrt((state.ruler.endX - state.ruler.startX) ** 2 + (state.ruler.endY - state.ruler.startY) ** 2);
+            let distanceInCm = distanceInPixels / 37.8;
+
+            ctx.fillText(`المسافة: ${distanceInCm.toFixed(2)} سم`, (state.ruler.startX + state.ruler.endX) / 2, (state.ruler.startY + state.ruler.endY) / 2);
+        }
+
         function startPen() {
             canvas.addEventListener('pointerdown', penStart);
         }
@@ -526,7 +711,6 @@
             saveState();
         }
 
-        // الممحاة
         function startEraser() {
             canvas.addEventListener('pointerdown', eraserStart);
         }
@@ -556,7 +740,6 @@
             saveState();
         }
 
-        // الفرجار
         function startCompass() {
             canvas.addEventListener('pointerdown', compassStart);
         }
@@ -567,23 +750,27 @@
             const coords = getEventCoords(e);
             state.startX = coords.x;
             state.startY = coords.y;
-            canvas.addEventListener('pointermove', previewCircle);
+            canvas.addEventListener('pointermove', previewRadius);
             canvas.addEventListener('pointerup', finishCircle);
         }
 
-        function previewCircle(e) {
+        function previewRadius(e) {
             if (!state.drawing || state.tool !== 'compassBtn') return;
             e.preventDefault();
             redrawAll();
             const coords = getEventCoords(e);
             const radius = Math.sqrt((coords.x - state.startX) ** 2 + (coords.y - state.startY) ** 2);
+            const radiusInCm = radius / 37.8;
+
             ctx.beginPath();
-            ctx.arc(state.startX, state.startY, radius, 0, Math.PI * 2);
+            ctx.moveTo(state.startX, state.startY);
+            ctx.lineTo(coords.x, coords.y);
             ctx.strokeStyle = 'gray';
             ctx.setLineDash([5, 5]);
             ctx.stroke();
             ctx.setLineDash([]);
-            ctx.fillText(`القطر: ${Math.round(radius * 2)}`, state.startX, state.startY - 10);
+
+            ctx.fillText(`نصف القطر: ${Math.round(radiusInCm * 10) / 10} سم`, coords.x + 10, coords.y - 10);
         }
 
         function finishCircle(e) {
@@ -591,35 +778,56 @@
             e.preventDefault();
             const coords = getEventCoords(e);
             const radius = Math.sqrt((coords.x - state.startX) ** 2 + (coords.y - state.startY) ** 2);
-            state.circles.push({ x: state.startX, y: state.startY, radius, color: ctx.strokeStyle });
+            state.circles.push({ x: state.startX, y: state.startY, radius: radius, color: ctx.strokeStyle });
             redrawAll();
             saveState();
             state.drawing = false;
-            canvas.removeEventListener('pointermove', previewCircle);
+            canvas.removeEventListener('pointermove', previewRadius);
             canvas.removeEventListener('pointerup', finishCircle);
         }
 
-        // المضلعات
+        function snapToGrid(coords) {
+            if (!state.grid) return coords;
+            const { step } = state.grid;
+            const pixelsPerCm = 37.8;
+            const canvasCenterX = canvas.width / 2;
+            const canvasCenterY = canvas.height / 2;
+
+            const xUnit = (coords.x - canvasCenterX) / pixelsPerCm;
+            const yUnit = -(coords.y - canvasCenterY) / pixelsPerCm;
+
+            const snappedXUnit = Math.round(xUnit / step) * step;
+            const snappedYUnit = Math.round(yUnit / step) * step;
+
+            const snappedX = snappedXUnit * pixelsPerCm + canvasCenterX;
+            const snappedY = -snappedYUnit * pixelsPerCm + canvasCenterY;
+
+            return { x: snappedX, y: snappedY };
+        }
+
         function startPolygon() {
             state.currentPolygon = [];
             canvas.addEventListener('pointerdown', addPolygonVertex);
             canvas.addEventListener('pointermove', previewPolygon);
-            canvas.addEventListener('dblclick', finishPolygon);
+            canvas.addEventListener('pointerup', checkAutoClose);
         }
 
         function addPolygonVertex(e) {
             if (state.tool !== 'polygonBtn') return;
             e.preventDefault();
-            const coords = getEventCoords(e);
+            let coords = getEventCoords(e);
+
+            coords = snapToGrid(coords);
+
             if (state.currentPolygon.length > 0) {
                 const lastPoint = state.currentPolygon[state.currentPolygon.length - 1];
                 if (Math.abs(coords.x - lastPoint.x) < 5 && Math.abs(coords.y - lastPoint.y) < 5) return;
             }
             state.currentPolygon.push({ x: coords.x, y: coords.y });
             redrawAll();
-            state.currentPolygon.forEach(p => {
+            state.currentPolygon.forEach((p, i) => {
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+                ctx.arc(p.x, p.y, i === 0 ? 4 : 4, 0, Math.PI * 2);
                 ctx.fillStyle = 'red';
                 ctx.fill();
             });
@@ -633,26 +841,46 @@
             ctx.moveTo(state.currentPolygon[0].x, state.currentPolygon[0].y);
             state.currentPolygon.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
             const coords = getEventCoords(e);
-            ctx.lineTo(coords.x, coords.y);
+            const firstPoint = state.currentPolygon[0];
+            const radius = 4;
+            const distance = Math.sqrt((coords.x - firstPoint.x) ** 2 + (coords.y - firstPoint.y) ** 2);
+
+            if (distance <= radius && state.currentPolygon.length >= 3) {
+                ctx.lineTo(firstPoint.x, firstPoint.y);
+            } else {
+                ctx.lineTo(coords.x, coords.y);
+            }
             ctx.strokeStyle = 'gray';
             ctx.setLineDash([5, 5]);
             ctx.stroke();
             ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.arc(firstPoint.x, firstPoint.y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = 'red';
+            ctx.fill();
         }
 
-        function finishPolygon(e) {
+        function checkAutoClose(e) {
             if (state.tool !== 'polygonBtn' || state.currentPolygon.length < 3) return;
             e.preventDefault();
-            state.polygons.push({ points: [...state.currentPolygon], color: ctx.strokeStyle });
-            state.currentPolygon = [];
-            redrawAll();
-            saveState();
-            canvas.removeEventListener('pointerdown', addPolygonVertex);
-            canvas.removeEventListener('pointermove', previewPolygon);
-            canvas.removeEventListener('dblclick', finishPolygon);
+            const coords = getEventCoords(e);
+            const firstPoint = { ...state.currentPolygon[0] };
+            const radius = 4;
+            const distance = Math.sqrt((coords.x - firstPoint.x) ** 2 + (coords.y - firstPoint.y) ** 2);
+
+            if (distance <= radius) {
+                state.currentPolygon.push({ x: firstPoint.x, y: firstPoint.y });
+                const selectedColor = document.getElementById('colorPicker').value || 'black';
+                state.polygons.push({ points: [...state.currentPolygon], color: selectedColor });
+                state.currentPolygon = [];
+                redrawAll();
+                saveState();
+                canvas.removeEventListener('pointerdown', addPolygonVertex);
+                canvas.removeEventListener('pointermove', previewPolygon);
+                canvas.removeEventListener('pointerup', checkAutoClose);
+            }
         }
 
-        // النقاط
         function startPoint() {
             canvas.addEventListener('click', addPoint);
         }
@@ -673,35 +901,30 @@
             state.points.forEach(point => {
                 const dist = Math.sqrt((coords.x - point.x) ** 2 + (coords.y - point.y) ** 2);
                 if (dist < 10) {
-                    const { xMax, xMin, yMax, yMin } = state.grid || { xMax: 10, xMin: -10, yMax: 10, yMin: -10 };
-                    const xCoord = xMin + (point.x / canvas.width) * (xMax - xMin);
-                    const yCoord = yMax - (point.y / canvas.height) * (yMax - yMin);
+                    const xCoord = (point.x - canvas.width / 2) / 37.8;
+                    const yCoord = -(point.y - canvas.height / 2) / 37.8;
                     alert(`الإحداثيات: (${xCoord.toFixed(1)}, ${yCoord.toFixed(1)})`);
                 }
             });
         }
 
-        function drawPoint(point) {
-            ctx.beginPath();
-            ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
-            ctx.fillStyle = point.color;
-            ctx.fill();
-        }
-
-        // الشبكة
         function drawGrid() {
-            const grid = {
-                xMax: parseFloat(document.getElementById('xMax').value),
-                xMin: parseFloat(document.getElementById('xMin').value),
-                yMax: parseFloat(document.getElementById('yMax').value),
-                yMin: parseFloat(document.getElementById('yMin').value),
-                step: parseFloat(document.getElementById('step').value)
-            };
-            if (!grid.xMax || !grid.xMin || !grid.yMax || !grid.yMin || !grid.step) {
-                alert("يرجى ملء جميع الحقول!");
+            let step = parseInt(document.getElementById('step').value) || 1;
+            if (step <= 0) {
+                alert("يرجى إدخال قفزة صحيحة أكبر من 0!");
                 return;
             }
-            state.grid = grid;
+
+            const pixelsPerCm = 37.8;
+            const canvasWidthCm = canvas.width / pixelsPerCm;
+            const canvasHeightCm = canvas.height / pixelsPerCm;
+
+            const maxX = Math.ceil(canvasWidthCm / 2 / step) * step;
+            const minX = -maxX;
+            const maxY = Math.ceil(canvasHeightCm / 2 / step) * step;
+            const minY = -maxY;
+
+            state.grid = { xMax: maxX, xMin: minX, yMax: maxY, yMin: minY, step };
             redrawAll();
             document.getElementById('gridInput').style.display = 'none';
             saveState();
@@ -709,61 +932,82 @@
 
         function drawGridLines(grid) {
             const { xMax, xMin, yMax, yMin, step } = grid;
-            const xRange = xMax - xMin;
-            const yRange = yMax - yMin;
-            const xStep = canvas.width / xRange * step;
-            const yStep = canvas.height / yRange * step;
+            const pixelsPerCm = 37.8;
+            const stepInPixels = step * pixelsPerCm;
 
             ctx.strokeStyle = '#ccc';
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 0.5;
             ctx.fillStyle = 'black';
-            ctx.font = '16px Cairo';
+            ctx.font = '12px Cairo';
+
+            const canvasCenterX = canvas.width / 2;
+            const canvasCenterY = canvas.height / 2;
 
             let xValue = xMin;
-            for (let x = 0; x <= canvas.width; x += xStep) {
+            for (let x = canvasCenterX + (xMin * pixelsPerCm); x <= canvasCenterX + (xMax * pixelsPerCm); x += stepInPixels) {
                 ctx.beginPath();
                 ctx.moveTo(x, 0);
                 ctx.lineTo(x, canvas.height);
                 ctx.stroke();
-                let text = Math.abs(xValue).toString();
-                if (xValue < 0) text = text + '-';
-                ctx.fillText(text, x - ctx.measureText(text).width / 2, canvas.height / 2 + 6);
+                if (xValue !== 0) {
+                    let displayText = Math.abs(xValue).toString();
+                    if (xValue < 0) displayText += '-';
+                    ctx.fillText(displayText, x - ctx.measureText(displayText).width / 2, canvasCenterY + 15);
+                }
                 xValue += step;
             }
 
-            let yValue = yMax;
-            for (let y = 0; y <= canvas.height; y += yStep) {
+            let yValue = yMin;
+            for (let y = canvasCenterY - (yMin * pixelsPerCm); y >= canvasCenterY - (yMax * pixelsPerCm); y -= stepInPixels) {
                 ctx.beginPath();
                 ctx.moveTo(0, y);
                 ctx.lineTo(canvas.width, y);
                 ctx.stroke();
-                let text = Math.abs(yValue).toString();
-                if (yValue < 0) text = text + '-';
-                ctx.fillText(text, canvas.width / 2 - ctx.measureText(text).width - 5, y + 6);
-                yValue -= step;
+                if (yValue !== 0) {
+                    let displayText = Math.abs(yValue).toString();
+                    if (yValue < 0) displayText += '-';
+                    ctx.fillText(displayText, canvasCenterX - ctx.measureText(displayText).width - 5, y + 5);
+                }
+                yValue += step;
             }
 
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 2;
-            const xZero = -xMin * (canvas.width / xRange);
-            const yZero = yMax * (canvas.height / yRange);
             ctx.beginPath();
-            ctx.moveTo(xZero, 0);
-            ctx.lineTo(xZero, canvas.height);
-            ctx.moveTo(0, yZero);
-            ctx.lineTo(canvas.width, yZero);
+            ctx.moveTo(0, canvasCenterY);
+            ctx.lineTo(canvas.width, canvasCenterY);
             ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(canvas.width - 10, canvasCenterY - 5);
+            ctx.lineTo(canvas.width, canvasCenterY);
+            ctx.lineTo(canvas.width - 10, canvasCenterY + 5);
+            ctx.fill();
+            ctx.fillText("X", canvas.width - 20, canvasCenterY - 10);
+
+            ctx.beginPath();
+            ctx.moveTo(canvasCenterX, 0);
+            ctx.lineTo(canvasCenterX, canvas.height);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(canvasCenterX - 5, 10);
+            ctx.lineTo(canvasCenterX, 0);
+            ctx.lineTo(canvasCenterX + 5, 10);
+            ctx.fill();
+            ctx.fillText("Y", canvasCenterX + 10, 15);
+
+            ctx.fillText("0", canvasCenterX - ctx.measureText("0").width - 5, canvasCenterY + 15);
         }
 
-        // خط الأعداد
         function drawNumberLine() {
             const nl = {
-                max: parseFloat(document.getElementById('nlMax').value),
-                min: parseFloat(document.getElementById('nlMin').value),
-                step: parseFloat(document.getElementById('nlStep').value)
+                max: 10,
+                min: -10,
+                step: parseInt(document.getElementById('nlStep').value) || 1
             };
-            if (!nl.max || !nl.min || !nl.step) {
-                alert("يرجى ملء جميع الحقول!");
+            if (!nl.step || nl.step <= 0) {
+                alert("يرجى إدخال قفزة صحيحة أكبر من 0!");
                 return;
             }
             state.numberLine = nl;
@@ -776,8 +1020,10 @@
             const { max, min, step } = nl;
             const y = canvas.height / 2;
             const margin = 20;
-            const range = max - min;
-            const stepWidth = (canvas.width - 2 * margin) / range * step;
+            const pixelsPerCm = 37.8;
+            const totalUnits = (max - min) / step;
+            const totalWidth = canvas.width - 2 * margin;
+            const unitWidth = totalWidth / totalUnits;
 
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 2;
@@ -790,19 +1036,46 @@
             ctx.fillStyle = 'black';
 
             let value = min;
-            for (let x = margin; x <= canvas.width - margin; x += stepWidth) {
+            let x = margin;
+            const textRotationThreshold = 20;
+
+            for (let i = 0; i <= totalUnits; i++) {
                 ctx.beginPath();
                 ctx.moveTo(x, y - 10);
                 ctx.lineTo(x, y + 10);
                 ctx.stroke();
-                let text = Math.abs(value).toFixed(1).toString();
-                if (value < 0) text = text + '-';
-                ctx.fillText(text, x - ctx.measureText(text).width / 2, y + 25);
+
+                const nextX = x + unitWidth;
+                const textWidth = ctx.measureText(value.toString()).width;
+                const isOverlapping = (nextX - x) < textWidth + 5;
+
+                ctx.save();
+                if (isOverlapping) {
+                    ctx.translate(x, y + 25);
+                    ctx.rotate(-Math.PI / 2);
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                } else {
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'top';
+                }
+
+                let displayText = Math.abs(value).toString();
+                if (value < 0) displayText += '-';
+
+                if (isOverlapping) {
+                    ctx.fillText(displayText, 0, 0);
+                } else {
+                    ctx.fillText(displayText, x, y + 25);
+                }
+
+                ctx.restore();
+
                 value += step;
+                x += unitWidth;
             }
         }
 
-        // الدوال
         function drawFunction() {
             if (!state.grid) {
                 alert("ارسم شبكة أولاً!");
@@ -843,17 +1116,6 @@
             }
         }
 
-        function drawFunctionGraph(func) {
-            ctx.beginPath();
-            ctx.moveTo(func.points[0].x, func.points[0].y);
-            func.points.forEach(p => ctx.lineTo(p.x, p.y));
-            ctx.strokeStyle = func.color;
-            ctx.stroke();
-            ctx.fillStyle = func.color;
-            ctx.fillText(func.label, func.labelX, func.labelY);
-        }
-
-        // التحويلات
         function showTransformMenu() {
             if (state.polygons.length === 0) {
                 alert("ارسم مضلعًا أولاً!");
@@ -866,6 +1128,7 @@
             alert("انقر على المضلع لتحديده.");
             canvas.addEventListener('click', selectPolygon);
             document.getElementById('transformMenu').style.display = 'block';
+            makePanelDraggable('transformMenu');
         }
 
         let selectedPolygon = null;
@@ -922,7 +1185,66 @@
             document.getElementById('transformMenu').style.display = 'none';
         }
 
-        // جدول الضرب العشوائي
+        function closeTransformMenu() {
+            document.getElementById('transformMenu').style.display = 'none';
+            selectedPolygon = null;
+        }
+
+        function makePanelDraggable(panelId) {
+            const panel = document.getElementById(panelId);
+            let isDragging = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+
+            panel.addEventListener('mousedown', startDragging);
+            panel.addEventListener('touchstart', startDragging);
+
+            function startDragging(e) {
+                initialX = e.type === 'touchstart' ? e.touches[0].clientX - currentX : e.clientX - currentX;
+                initialY = e.type === 'touchstart' ? e.touches[0].clientY - currentY : e.clientY - currentY;
+                isDragging = true;
+                panel.classList.add('dragging');
+            }
+
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag);
+
+            document.addEventListener('mouseup', stopDragging);
+            document.addEventListener('touchend', stopDragging);
+
+            function drag(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                currentX = (e.type === 'touchmove' ? e.touches[0].clientX : e.clientX) - initialX;
+                currentY = (e.type === 'touchmove' ? e.touches[0].clientY : e.clientY) - initialY;
+
+                const minX = 0;
+                const maxX = window.innerWidth - panel.offsetWidth;
+                const minY = 0;
+                const maxY = window.innerHeight - panel.offsetHeight;
+
+                currentX = Math.max(minX, Math.min(maxX, currentX));
+                currentY = Math.max(minY, Math.min(maxY, currentY));
+
+                panel.style.left = currentX + 'px';
+                panel.style.top = currentY + 'px';
+                panel.style.right = 'auto';
+                panel.style.position = 'fixed';
+            }
+
+            function stopDragging() {
+                isDragging = false;
+                panel.classList.remove('dragging');
+            }
+
+            panel.style.left = '20px';
+            panel.style.top = '20%';
+            panel.style.right = 'auto';
+            panel.style.position = 'fixed';
+        }
+
         function showMultiplicationTable() {
             const table = document.getElementById('multiplicationTable');
             table.style.display = 'block';
@@ -943,7 +1265,6 @@
             });
         }
 
-        // المسطرة
         function startRuler() {
             canvas.addEventListener('pointerdown', rulerStart);
         }
@@ -973,119 +1294,154 @@
             canvas.removeEventListener('pointerup', rulerEnd);
         }
 
-        function drawRuler() {
-            ctx.beginPath();
-            ctx.moveTo(state.ruler.startX, state.ruler.startY);
-            ctx.lineTo(state.ruler.endX, state.ruler.endY);
-            ctx.strokeStyle = 'purple';
-            ctx.stroke();
-            const dist = Math.sqrt((state.ruler.endX - state.ruler.startX) ** 2 + (state.ruler.endY - state.ruler.startY) ** 2);
-            ctx.fillText(`المسافة: ${Math.round(dist)} بكسل`, (state.ruler.startX + state.ruler.endX) / 2, (state.ruler.startY + state.ruler.endY) / 2);
-        }
-
-        // المؤقت
         let timerInterval = null;
+
         function startTimer() {
             if (timerInterval) clearInterval(timerInterval);
             let seconds = parseInt(prompt("أدخل الوقت بالثواني:", "60")) || 60;
             const timerDisplay = document.getElementById('timer');
+            timerDisplay.textContent = `00:${seconds.toString().padStart(2, '0')}`;
+            isWhistlePlaying = false;
+
             timerInterval = setInterval(() => {
                 seconds--;
-                const mins = Math.floor(seconds / 60);
-                const secs = seconds % 60;
-                timerDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                if (seconds < 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.textContent = "انتهى!";
+                    timerDisplay.classList.add('warning');
+                    playLongBeep();
+                    return;
+                }
+                timerDisplay.textContent = `00:${seconds.toString().padStart(2, '0')}`;
                 if (seconds <= 10) {
                     timerDisplay.classList.add('warning');
-                    if (seconds % 2 === 0) new Audio('https://www.soundjay.com/buttons/beep-01a.mp3').play().catch(() => {});
-                }
-                if (seconds <= 0) {
-                    clearInterval(timerInterval);
-                    alert('انتهى الوقت!');
-                    timerDisplay.classList.remove('warning');
+                    if (!isWhistlePlaying) {
+                        playBeep(200);
+                        isWhistlePlaying = true;
+                        setTimeout(() => {
+                            isWhistlePlaying = false;
+                        }, 300);
+                    }
                 }
             }, 1000);
+            saveState();
         }
 
-        // تصوير الشاشة
         function takeScreenshot() {
             const link = document.createElement('a');
-            link.download = 'math_board_screenshot.png';
+            link.download = `math_board_${new Date().toISOString().replace(/[:.]/g, '-')}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
+            saveState();
         }
 
-        // دوارة الطلاب
+        // دالة لخلط القائمة عشوائيًا (Fisher-Yates Shuffle)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
         function spinWheel() {
-            const names = document.getElementById('studentNames').value.split('\n').filter(n => n.trim());
+            let names = document.getElementById('studentNames').value.split('\n').filter(n => n.trim());
             if (names.length === 0) {
                 alert("أدخل أسماء الطلاب أولاً!");
                 return;
             }
+
+            // خلط الأسماء عشوائيًا عند تهيئة القائمة
+            if (state.remainingNames.length === 0) {
+                state.remainingNames = shuffleArray([...names]);
+            }
+
+            if (state.remainingNames.length === 0) {
+                alert("لا توجد أسماء متبقية! أعد إدخال الأسماء.");
+                document.getElementById('studentNames').value = '';
+                return;
+            }
+
             const spinnerCanvas = document.getElementById('spinnerCanvas');
             const spinCtx = spinnerCanvas.getContext('2d');
             let angle = 0;
-            const speed = 0.2;
-            const spinDuration = 3000;
+            const baseSpeed = 0.2;
+            const spinDuration = 5000;
             let startTime = null;
+            const randomExtraSpins = Math.floor(Math.random() * 5) + 5;
 
             function drawWheel(timestamp) {
                 if (!startTime) startTime = timestamp;
                 const elapsed = timestamp - startTime;
-                spinCtx.clearRect(0, 0, 200, 200);
+                spinCtx.clearRect(0, 0, spinnerCanvas.width, spinnerCanvas.height);
+
                 spinCtx.beginPath();
-                spinCtx.arc(100, 100, 90, 0, Math.PI * 2);
+                spinCtx.arc(200, 200, 180, 0, Math.PI * 2);
                 spinCtx.fillStyle = '#f0f0f0';
                 spinCtx.fill();
 
-                const sliceAngle = (Math.PI * 2) / names.length;
-                for (let i = 0; i < names.length; i++) {
+                const namesToShow = state.remainingNames;
+                const sliceAngle = (Math.PI * 2) / namesToShow.length;
+                for (let i = 0; i < namesToShow.length; i++) {
                     spinCtx.beginPath();
-                    spinCtx.moveTo(100, 100);
-                    spinCtx.arc(100, 100, 90, angle + i * sliceAngle, angle + (i + 1) * sliceAngle);
-                    spinCtx.fillStyle = `hsl(${i * 360 / names.length}, 70%, 50%)`;
+                    spinCtx.moveTo(200, 200);
+                    spinCtx.arc(200, 200, 180, angle + i * sliceAngle, angle + (i + 1) * sliceAngle);
+                    spinCtx.fillStyle = `hsl(${i * 360 / namesToShow.length}, 70%, 50%)`;
                     spinCtx.fill();
+                    spinCtx.lineWidth = 2;
+                    spinCtx.strokeStyle = '#000';
+                    spinCtx.stroke();
                     spinCtx.save();
-                    spinCtx.translate(100, 100);
+                    spinCtx.translate(200, 200);
                     spinCtx.rotate(angle + i * sliceAngle + sliceAngle / 2);
-                    spinCtx.fillStyle = 'white';
-                    spinCtx.fillText(names[i], 40, 5);
+                    spinCtx.textAlign = 'center';
+                    spinCtx.fillStyle = 'black';
+                    spinCtx.font = '16px Cairo';
+                    spinCtx.fillText(namesToShow[i], 120, 0);
                     spinCtx.restore();
                 }
 
+                const speed = baseSpeed * (1 - elapsed / spinDuration);
                 angle += speed;
+
                 if (elapsed < spinDuration) {
                     requestAnimationFrame(drawWheel);
                 } else {
-                    const winnerIndex = Math.floor((angle % (Math.PI * 2)) / sliceAngle);
-                    alert(`الفائز: ${names[names.length - 1 - winnerIndex]}`);
-                    document.getElementById('spinnerInput').style.display = 'none';
+                    const finalAngle = (angle + randomExtraSpins * Math.PI * 2) % (Math.PI * 2);
+                    const normalizedAngle = (finalAngle + Math.PI * 2) % (Math.PI * 2);
+                    const selectedIndex = Math.floor(normalizedAngle / sliceAngle);
+                    const correctedIndex = selectedIndex % namesToShow.length; // اختيار عشوائي بناءً على الزاوية
+                    const selectedName = namesToShow[correctedIndex];
+
+                    playBeep(200);
+                    alert(`الطالب المختار: ${selectedName}`);
+                    state.remainingNames = state.remainingNames.filter(name => name !== selectedName);
+                    state.lastSelectedName = selectedName;
+                    document.getElementById('studentNames').value = state.remainingNames.join('\n');
                 }
             }
 
             requestAnimationFrame(drawWheel);
         }
 
-        // الرسم
-        function drawPolygon(poly) {
-            ctx.beginPath();
-            ctx.moveTo(poly.points[0].x, poly.points[0].y);
-            ctx.lineJoin = 'round';
-            poly.points.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
-            ctx.closePath();
-            ctx.strokeStyle = poly.color;
-            ctx.stroke();
+        function increment(id, value) {
+            const input = document.getElementById(id);
+            let current = parseFloat(input.value) || 0;
+            input.value = (current + value).toString();
         }
 
-        function drawCircle(circle) {
-            ctx.beginPath();
-            ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
-            ctx.strokeStyle = circle.color;
-            ctx.stroke();
-        }
+        document.getElementById('colorPicker').addEventListener('change', () => {
+            ctx.strokeStyle = document.getElementById('colorPicker').value;
+            ctx.fillStyle = document.getElementById('colorPicker').value;
+        });
 
-        // تغيير الإعدادات
-        document.getElementById('colorPicker').addEventListener('change', () => ctx.strokeStyle = document.getElementById('colorPicker').value);
-        document.getElementById('lineWidth').addEventListener('change', () => ctx.lineWidth = document.getElementById('lineWidth').value);
+        document.getElementById('lineWidth').addEventListener('change', () => {
+            ctx.lineWidth = parseInt(document.getElementById('lineWidth').value);
+        });
+
+        document.getElementById('eraserSize').addEventListener('change', () => {
+            // لا حاجة لتحديث مباشر لأن الممحاة تعتمد على الحدث أثناء الرسم
+        });
     </script>
 </body>
 </html>
